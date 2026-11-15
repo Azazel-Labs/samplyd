@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "samplyd: Build and install release",
+      "detail": "Release build, then copy into Program Files and restart the scheduled task (UAC prompt)",
+      "type": "process",
+      "command": "cargo",
+      "args": ["xtask", "install"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "samplyd: Build (release)",
+      "type": "process",
+      "command": "cargo",
+      "args": ["build", "--release", "--locked"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "samplyd: Test",
+      "type": "process",
+      "command": "cargo",
+      "args": ["test", "--workspace", "--locked"],
+      "problemMatcher": ["$rustc"],
+      "group": "test"
+    },
+    {
+      "label": "samplyd: Clean leftover traces",
+      "type": "process",
+      "command": "C:\\Program Files\\samplyd\\samplyctl.exe",
+      "args": ["clean"],
+      "problemMatcher": []
+    }
+  ]
+}

@@ -35,6 +35,20 @@ Two samply behaviours samplyd works around:
 Prereqs: `samply` on PATH (e.g. `cargo install --locked samply`) and xperf (Windows Performance
 Toolkit, which samply already needs).
 
+The quick way, from a normal terminal (or the VS Code task **samplyd: Build and install release**):
+
+```powershell
+cargo xtask install
+```
+
+It builds the release binaries as you, then asks UAC once to copy `samplyd.exe` and
+`samplyctl.exe` into `%ProgramFiles%\samplyd` and restart the scheduled task. A task that already
+runs samplyd from there keeps its settings; otherwise it is registered with profiles and the log
+under `%ProgramData%\samplyd`, using `%ProgramFiles%\samplyd\samply.exe` if present. It finishes by
+running `samplyctl ping`. Rerun it after pulling changes.
+
+To install by hand instead:
+
 ```powershell
 cargo install --path .          # installs samplyd.exe and samplyctl.exe into ~/.cargo/bin
 
