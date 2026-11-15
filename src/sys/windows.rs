@@ -47,11 +47,13 @@ fn wide(s: &str) -> Vec<u16> {
 }
 
 unsafe fn from_wide_ptr(p: *const u16) -> String {
-    let mut len = 0;
-    while *p.add(len) != 0 {
-        len += 1;
+    unsafe {
+        let mut len = 0;
+        while *p.add(len) != 0 {
+            len += 1;
+        }
+        String::from_utf16_lossy(std::slice::from_raw_parts(p, len))
     }
-    String::from_utf16_lossy(std::slice::from_raw_parts(p, len))
 }
 
 fn last_error() -> u32 {
@@ -130,13 +132,15 @@ pub fn is_elevated() -> bool {
 }
 
 unsafe fn sid_to_string(sid: *mut c_void) -> Result<String> {
-    let mut s: *mut u16 = std::ptr::null_mut();
-    if ConvertSidToStringSidW(sid, &mut s) == 0 {
-        bail!("ConvertSidToStringSidW failed: {}", last_error());
+    unsafe {
+        let mut s: *mut u16 = std::ptr::null_mut();
+        if ConvertSidToStringSidW(sid, &mut s) == 0 {
+            bail!("ConvertSidToStringSidW failed: {}", last_error());
+        }
+        let out = from_wide_ptr(s);
+        LocalFree(s as *mut c_void);
+        Ok(out)
     }
-    let out = from_wide_ptr(s);
-    LocalFree(s as *mut c_void);
-    Ok(out)
 }
 
 /// String SID of the user this process runs as (same SID whether elevated or not).

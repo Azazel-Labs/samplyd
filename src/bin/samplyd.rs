@@ -275,10 +275,10 @@ impl Shared {
 
     fn find(&self, id: Option<u64>) -> Lookup {
         let inner = self.inner.lock().unwrap();
-        if let Some(a) = &inner.active {
-            if id.is_none() || id == Some(a.id) {
-                return Lookup::Active(a.rx.clone(), a.stop.clone());
-            }
+        if let Some(a) = &inner.active
+            && (id.is_none() || id == Some(a.id))
+        {
+            return Lookup::Active(a.rx.clone(), a.stop.clone());
         }
         let found = match id {
             Some(id) => inner.history.iter().find(|s| s.id == id),
@@ -399,15 +399,15 @@ async fn dispatch(shared: &Arc<Shared>, req: Request, peer: &Peer) -> Response {
 
 async fn start(shared: &Arc<Shared>, p: StartParams, peer: &Peer) -> Result<Response> {
     let cfg = &shared.cfg;
-    if let Some(r) = p.rate_hz {
-        if !(r > 0.0 && r.is_finite()) {
-            bail!("rate_hz must be > 0");
-        }
+    if let Some(r) = p.rate_hz
+        && !(r > 0.0 && r.is_finite())
+    {
+        bail!("rate_hz must be > 0");
     }
-    if let Some(d) = p.duration_secs {
-        if !(d > 0.0 && d.is_finite()) {
-            bail!("duration_secs must be > 0");
-        }
+    if let Some(d) = p.duration_secs
+        && !(d > 0.0 && d.is_finite())
+    {
+        bail!("duration_secs must be > 0");
     }
     let target_handle = match p.target {
         Target::Pid(pid) => {
@@ -560,10 +560,10 @@ fn spawn_reader<R: AsyncRead + Unpin + Send + 'static>(
             let low = line.to_ascii_lowercase();
             // samply prints "Press Ctrl+C to stop." (Windows), "... until Ctrl+C..." (Linux),
             // "press Ctrl-C to stop" (macOS) once the recorder is live.
-            if low.contains("ctrl+c") || low.contains("ctrl-c") {
-                if let Some(s) = ready.lock().unwrap().take() {
-                    let _ = s.send(());
-                }
+            if (low.contains("ctrl+c") || low.contains("ctrl-c"))
+                && let Some(s) = ready.lock().unwrap().take()
+            {
+                let _ = s.send(());
             }
             let mut l = log.lock().unwrap();
             if l.len() >= LOG_TAIL_LINES {
@@ -644,13 +644,12 @@ async fn run_session(
             }
             _ = tick.tick() => {
                 sync_log(&tx);
-                if p.stop_on_exit {
-                    if let Some(t) = &target {
-                        if !t.is_alive() {
-                            pending.get_or_insert(StopReason::TargetExited);
-                            if ready { break Outcome::Stop; }
-                        }
-                    }
+                if p.stop_on_exit
+                    && let Some(t) = &target
+                    && !t.is_alive()
+                {
+                    pending.get_or_insert(StopReason::TargetExited);
+                    if ready { break Outcome::Stop; }
                 }
                 // Stop requested but samply never confirmed it was live: don't wait forever.
                 if pending.is_some() && !ready && spawned.elapsed() > cfg.ready_timeout {
@@ -666,10 +665,10 @@ async fn run_session(
             let reason = pending.unwrap_or(StopReason::Requested);
             tx.send_modify(|s| s.state = SessionState::Stopping);
             log!("session {id}: stopping ({reason:?})");
-            if let Some(pid) = child.id() {
-                if let Err(e) = sys::send_ctrl_c(pid).await {
-                    log!("session {id}: ctrl-c failed: {e:#}");
-                }
+            if let Some(pid) = child.id()
+                && let Err(e) = sys::send_ctrl_c(pid).await
+            {
+                log!("session {id}: ctrl-c failed: {e:#}");
             }
             match timeout(cfg.stop_timeout, child.wait()).await {
                 Ok(st) => (st, reason),

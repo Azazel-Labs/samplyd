@@ -8,10 +8,10 @@ use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader
 /// Default endpoint: a named pipe on Windows, a Unix socket elsewhere.
 /// Override with `--endpoint` or the `SAMPLYD_ENDPOINT` env var.
 pub fn default_endpoint() -> String {
-    if let Ok(e) = std::env::var("SAMPLYD_ENDPOINT") {
-        if !e.is_empty() {
-            return e;
-        }
+    if let Ok(e) = std::env::var("SAMPLYD_ENDPOINT")
+        && !e.is_empty()
+    {
+        return e;
     }
     if cfg!(windows) {
         r"\\.\pipe\samplyd".to_string()
