@@ -7,7 +7,7 @@ name = "samplyd"
 version = "0.1.0"
 edition = "2024"
 description = "Keep an elevated samply ready as a service; drive it from unprivileged processes."
-license = "MIT OR Apache-2.0"
+license = "MIT-0"
 
 [dependencies]
 anyhow = "1"

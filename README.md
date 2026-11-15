@@ -203,3 +203,7 @@ included) and pass `--output-dir`/`--log-file` under an admin-write-only directo
 `samplyd.exe` and samply elevated at every logon, and the daemon writes profiles and its log as
 admin, so a user-writable location (`~/.cargo/bin`, `%LOCALAPPDATA%`) lets any process you run
 swap the binary or plant a junction there.
+
+## License
+
+MIT-0. See [LICENSE-MIT0](LICENSE-MIT0).
